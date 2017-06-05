@@ -3,7 +3,8 @@ var crypto = require('crypto');
 var qs = require('querystring');
 var http = require('http');
 var https = require('https');
-var events = require('events')
+var events = require('events');
+var AWS = require('aws-sdk');
 
 var SIGNATURE_METHOD  = 'HmacSHA256';
 var SIGNATURE_VERSION = '2';
@@ -30,13 +31,21 @@ var range = function(num) {
 module.exports = function(options) {
 	options = options || {};
 
+	options.profile = options.profile || process.env.SQS_PROFILE || process.env.AWS_PROFILE;
 	options.access = options.access || process.env.SQS_ACCESS_KEY || process.env.AWS_ACCESS_KEY_ID;
 	options.secret = options.secret || process.env.SQS_SECRET_KEY || process.env.AWS_SECRET_ACCESS_KEY;
 	options.region = options.region || process.env.SQS_REGION || process.env.AWS_REGION || DEFAULT_REGION;
 	options.raw = options.raw || false;
 	options.proxy = options.proxy || false;
 
-	if (!options.access || !options.secret) throw new Error('options.access and options.secret are required');
+	if ((!options.access || !options.secret) && !(!options.profile)) throw new Error('options.access and options.secret are required when options.profile is not set');
+
+	if(options.profile) {
+		const credentials = new AWS.SharedIniFileCredentials({profile: options.profile});
+		options.access = credentials.accessKeyId;
+		options.secret = credentials.secretAccessKey;
+		if (!options.access || !options.secret) throw new Error('options.access and options.secret were not loaded with the profile provided.');
+	}
 
 	var queues = {};
 	var closed = false;

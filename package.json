@@ -2,6 +2,7 @@
   "name": "sqs",
   "version": "2.0.2",
   "dependencies": {
+    "aws-sdk": "^2.62.0",
     "request": "~2.75.0"
   },
   "repository": "git://github.com/mafintosh/sqs",
