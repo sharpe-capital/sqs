@@ -38,7 +38,7 @@ module.exports = function(options) {
 	options.raw = options.raw || false;
 	options.proxy = options.proxy || false;
 
-	if ((!options.access || !options.secret) && !(!options.profile)) throw new Error('options.access and options.secret are required when options.profile is not set');
+	if ((!options.access || !options.secret) && (!options.profile)) throw new Error('options.access and options.secret are required when options.profile is not set');
 
 	if(options.profile) {
 		const credentials = new AWS.SharedIniFileCredentials({profile: options.profile});
